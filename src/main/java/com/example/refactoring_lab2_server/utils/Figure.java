@@ -11,14 +11,14 @@ import java.util.stream.Collectors;
 @Getter
 @Setter
 public class Figure {
-    private List<FiguresService.Coordinate> coordinates = new ArrayList<>();
+    private List<Coordinate> coordinates = new ArrayList<>();
     private FigureEnum figure;
 
-    public static Figure getFigure(List<FiguresService.Vector> vectors) {
+    public static Figure getFigure(List<Vector> vectors) {
         Figure figure = new Figure();
         figure.figure = getFigure(vectors.size());
         figure.coordinates = vectors.stream()
-            .map(vector -> vector.start)
+            .map(Vector::getStart)
             .collect(Collectors.toList());
 
         return figure;
@@ -35,7 +35,7 @@ public class Figure {
 
     public String getCoordinatesString() {
         return "(" + coordinates.stream()
-            .map(c -> "[" + c.x + "," + c.y + "]")
+            .map(c -> "[" + c.getX() + "," + c.getY() + "]")
             .collect(Collectors.joining()) + ")";
     }
 }

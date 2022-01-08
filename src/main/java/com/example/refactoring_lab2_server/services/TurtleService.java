@@ -1,4 +1,4 @@
-package com.example.refactoring_lab2_server;
+package com.example.refactoring_lab2_server.services;
 
 import com.example.refactoring_lab2_server.entities.TurtleState;
 import com.example.refactoring_lab2_server.entities.User;
@@ -6,6 +6,7 @@ import com.example.refactoring_lab2_server.enums.ColorEnum;
 import com.example.refactoring_lab2_server.repos.TurtleStateRepository;
 import com.example.refactoring_lab2_server.utils.Figure;
 import com.example.refactoring_lab2_server.utils.FiguresService;
+import com.example.refactoring_lab2_server.utils.Vector;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,11 +22,14 @@ public class TurtleService {
 
     private final TurtleStateRepository turtleStateRepository;
 
+    private final UserService userService;
+
     public void initStateForUser(User user) {
         turtleStateRepository.save(new TurtleState(false, 0, 0, 0, ColorEnum.BLACK, user));
     }
 
-    public String changeAngle(final int angle, User user) {
+    public String changeAngle(final int angle) {
+        final User user = userService.getFromContext();
         final TurtleState lastState = turtleStateRepository.findTopByOwnerOrderByCreateDesc(user);
         final TurtleState newState = lastState.changeAngle(angle);
         turtleStateRepository.save(newState);
@@ -33,7 +37,8 @@ public class TurtleService {
         return newState.toString();
     }
 
-    public String move(final int steps, User user) {
+    public String move(final int steps) {
+        final User user = userService.getFromContext();
         final TurtleState lastState = turtleStateRepository.findTopByOwnerOrderByCreateDesc(user);
         final TurtleState newState = lastState.move(steps);
         turtleStateRepository.save(newState);
@@ -41,7 +46,8 @@ public class TurtleService {
         return newState.toString();
     }
 
-    public String changeColor(final ColorEnum color, User user) {
+    public String changeColor(final ColorEnum color) {
+        final User user = userService.getFromContext();
         final TurtleState lastState = turtleStateRepository.findTopByOwnerOrderByCreateDesc(user);
         final TurtleState newState = lastState.changeColor(color);
         turtleStateRepository.save(newState);
@@ -49,7 +55,8 @@ public class TurtleService {
         return newState.toString();
     }
 
-    public String changePenState(final boolean pu, User user) {
+    public String changePenState(final boolean pu) {
+        final User user = userService.getFromContext();
         final TurtleState lastState = turtleStateRepository.findTopByOwnerOrderByCreateDesc(user);
 
         if (lastState.isPenState() == pu) {
@@ -61,7 +68,8 @@ public class TurtleService {
         return newState.toString();
     }
 
-    public String getFigures(User user) {
+    public String getFigures() {
+        final User user = userService.getFromContext();
         final List<TurtleState> all = turtleStateRepository.findAllByOwner(user);
         final List<Figure> figures = figuresService.getFigures(all);
 
@@ -76,10 +84,11 @@ public class TurtleService {
         return response;
     }
 
-    public String getSteps(User user) {
+    public String getSteps() {
+        final User user = userService.getFromContext();
         final List<TurtleState> all = turtleStateRepository.findAllByOwner(user);
         return figuresService.getAllVectors(all).stream()
-            .map(FiguresService.Vector::getCommand)
+            .map(Vector::getCommand)
             .filter(str -> !str.isEmpty())
             .map(str -> str + "\n")
             .collect(Collectors.joining());

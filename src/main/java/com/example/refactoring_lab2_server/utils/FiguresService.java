@@ -1,10 +1,6 @@
 package com.example.refactoring_lab2_server.utils;
 
 import com.example.refactoring_lab2_server.entities.TurtleState;
-import com.example.refactoring_lab2_server.enums.ColorEnum;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -14,37 +10,6 @@ import java.util.stream.Collectors;
 @Service
 public class FiguresService {
 
-    @Getter
-    @EqualsAndHashCode
-    public class Vector {
-        Coordinate start;
-        Coordinate end;
-        boolean visible;
-        ColorEnum color;
-
-        Vector(double startX, double startY, double endX, double endY, boolean visible, ColorEnum color) {
-            start = new Coordinate(startX, startY);
-            end = new Coordinate(endX, endY);
-            this.visible = visible;
-            this.color = color;
-        }
-
-        public String getCommand() {
-            if (start != end) {
-                return "move to " + "[" + end.x + "," + end.y + "] with " + (visible ? "pan up" : "pan down");
-            }
-
-            return "";
-        }
-    }
-
-    @AllArgsConstructor
-    @EqualsAndHashCode
-    public class Coordinate {
-        double x;
-        double y;
-    }
-
     public List<Figure> getFigures(List<TurtleState> states) {
         final List<Vector> vectors = getRightVectors(states);
         List<Vector> vectorsToCheck = new ArrayList<>();
@@ -53,7 +18,6 @@ public class FiguresService {
 
         for (int amountOfEdges = 3; amountOfEdges <= 6; amountOfEdges++) {
             for (Vector vector : vectors) {
-                //ужасный код
                 if (vectorsToCheck.size() == amountOfEdges) {
                     vectorsToCheck.add(vector);
                     vectorsToCheck.remove(0);
@@ -78,8 +42,8 @@ public class FiguresService {
         List<Vector> list = getAllVectors(states);
 
         list = list.stream()
-            .filter(vector -> !vector.start.equals(vector.end))
-            .filter(vector -> vector.visible)
+            .filter(vector -> !vector.getStart().equals(vector.getEnd()))
+            .filter(Vector::isVisible)
             .collect(Collectors.toList());
 
         return list;
@@ -112,8 +76,8 @@ public class FiguresService {
             final Vector cur = list.get(vectorIdx);
             final Vector next = list.get(vectorIdx + 1);
 
-            if (cur.end.equals(start)) return false;
-            if (cur.end.equals(next.start)) continue;
+            if (cur.getEnd().equals(start)) return false;
+            if (cur.getEnd().equals(next.getStart())) continue;
 
             return false;
         }
